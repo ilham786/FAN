@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Control — Full Explanation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #060a10;
+      --surface:   #0c1422;
+      --card:      #111827;
+      --card2:     #141e2e;
+      --border:    #1e2d42;
+      --border2:   #243347;
+      --muted:     #4a6080;
+      --text:      #dce8f5;
+      --soft:      #8fa8c4;
+      --green:     #00e676;
+      --green-dim: rgba(0,230,118,0.1);
+      --red:       #ff5252;
+      --red-dim:   rgba(255,82,82,0.1);
+      --blue:      #448aff;
+      --blue-dim:  rgba(68,138,255,0.08);
+      --amber:     #ffd740;
+      --purple:    #b388ff;
+      --cyan:      #18ffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ══════════════ TOP HERO ══════════════ */
+    .hero {
+      text-align: center;
+      padding: 56px 24px 40px;
+      border-bottom: 1px solid var(--border);
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(68,138,255,0.07) 0%, transparent 70%);
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--blue-dim);
+      border: 1px solid rgba(68,138,255,0.25);
+      border-radius: 100px;
+      padding: 4px 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--blue);
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(22px, 4vw, 36px);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero h1 span {
+      background: linear-gradient(90deg, var(--blue), var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--soft);
+      font-size: 15px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ══════════════ NAV TABS ══════════════ */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .tab:hover, .tab.active {
+      background: var(--blue-dim);
+      border-color: rgba(68,138,255,0.4);
+      color: var(--blue);
+    }
+
+    /* ══════════════ MAIN LAYOUT ══════════════ */
+    .main {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+    }
+
+    /* ══════════════ LEFT — STICKY PREVIEW ══════════════ */
+    .preview-col { position: sticky; top: 24px; }
+
+    .preview-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-label::after { content:''; flex:1; height:1px; background: var(--border); }
+
+    /* browser chrome */
+    .browser {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .browser-bar {
+      background: #0c1422;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .b-dots { display: flex; gap: 6px; }
+    .b-dots span { width: 11px; height: 11px; border-radius: 50%; }
+    .bd-r { background: #ff5f57; }
+    .bd-y { background: #febc2e; }
+    .bd-g { background: #28c840; }
+    .b-url {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--soft);
+    }
+
+    /* ── DASHBOARD (exact replica) ── */
+    .db {
+      background: #080c14;
+      background-image:
+        linear-gradient(rgba(68,138,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(68,138,255,0.025) 1px, transparent 1px);
+      background-size: 28px 28px;
+      padding: 0;
+    }
+    .db-card {
+      background: #141e2e;
+      border: 1px solid #1e2d42;
+      border-radius: 18px;
+      margin: 16px;
+      overflow: hidden;
+    }
+    .db-accent { height: 3px; background: linear-gradient(90deg,#448aff,#00e676,#448aff); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
+    @keyframes shimmer { to { background-position: 200% 0; } }
+
+    .db-header {
+      padding: 16px 20px 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .db-header h2 { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); }
+    .db-header p  { font-size: 9px; color: var(--muted); margin-top: 2px; font-family: 'Space Mono', monospace; }
+    .db-pill {
+      display: flex; align-items: center; gap: 4px;
+      background: rgba(68,138,255,0.08); border: 1px solid rgba(68,138,255,0.2);
+      border-radius: 100px; padding: 3px 8px;
+      font-family: 'Space Mono', monospace; font-size: 8px; color: var(--blue);
+    }
+    .db-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); animation: pulse 2s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+    .db-fan-sec { padding: 18px 20px 14px; display: flex; flex-direction: column; align-items: center; }
+    .db-ring {
+      width: 96px; height: 96px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid #1e2d42; background: #0f1724;
+      transition: all 0.6s ease; font-size: 38px;
+    }
+    .db-ring.on {
+      border-color: #00e676; background: rgba(0,230,118,0.1);
+      box-shadow: 0 0 28px rgba(0,230,118,0.25);
+      animation: spin 1.4s linear infinite;
+    }
+    .db-ring.off { border-color: #ff5252; background: rgba(255,82,82,0.08); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .db-badge {
+      margin-top: 10px;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 100px;
+      font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 1px;
+      transition: all 0.4s;
+    }
+    .db-badge.on  { background: rgba(0,230,118,0.12); color: #00e676; border: 1px solid rgba(0,230,118,0.3); }
+    .db-badge.off { background: rgba(74,96,128,0.15); color: var(--muted); border: 1px solid var(--border); }
+    .db-sdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    .db-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 16px 14px; }
+    .db-chip {
+      background: #0f1724; border: 1px solid #1e2d42;
+      border-radius: 10px; padding: 10px; transition: all 0.35s; position: relative; overflow: hidden;
+    }
+    .db-chip::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; background:#1e2d42; transition: all 0.35s; }
+    .db-chip.fon::before  { background: #00e676; box-shadow: 0 0 6px #00e676; }
+    .db-chip.foff::before { background: #ff5252; box-shadow: 0 0 6px #ff5252; }
+    .db-chip.fon  { border-color: rgba(0,230,118,0.3); background: rgba(0,230,118,0.08); }
+    .db-chip.foff { border-color: rgba(255,82,82,0.3);  background: rgba(255,82,82,0.08); }
+    .db-chip-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .db-chip-num { font-family:'Space Mono',monospace; font-size:8px; font-weight:700; letter-spacing:1px; color:var(--muted); }
+    .db-chip-led { width:6px; height:6px; border-radius:50%; background:#1e2d42; transition:all 0.35s; }
+    .db-chip.fon  .db-chip-led { background:#00e676; box-shadow:0 0 5px #00e676; animation:pulse 0.8s ease infinite; }
+    .db-chip.foff .db-chip-led { background:#ff5252; box-shadow:0 0 5px #ff5252; animation:pulse 0.8s ease infinite; }
+    .db-chip-title { font-size:10px; font-weight:700; color:var(--soft); margin-bottom:2px; }
+    .db-chip.fon  .db-chip-title { color:#00e676; }
+    .db-chip.foff .db-chip-title { color:#ff5252; }
+    .db-chip-state { font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); }
+    .db-chip-pin {
+      margin-top:5px; display:inline-block;
+      background:rgba(68,138,255,0.1); border:1px solid rgba(68,138,255,0.15);
+      border-radius:3px; padding:1px 5px;
+      font-family:'Space Mono',monospace; font-size:8px; color:var(--blue);
+    }
+
+    .db-btns { padding: 0 16px; }
+    .db-btn-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .db-btn {
+      border:none; border-radius:12px; padding:14px 8px;
+      font-size:12px; font-weight:700; cursor:pointer;
+      transition:all 0.2s ease; font-family:'DM Sans',sans-serif;
+    }
+    .db-btn:active { transform:scale(0.95); }
+    .db-btn:disabled { opacity:0.3; cursor:not-allowed; transform:none; }
+    .db-btn-on  { background:linear-gradient(155deg,#00c853,#00e676); color:#001a0a; box-shadow:0 5px 18px rgba(0,230,118,0.35); }
+    .db-btn-off { background:linear-gradient(155deg,#c62828,#ff5252); color:#fff;    box-shadow:0 5px 18px rgba(255,82,82,0.3); }
+    .db-hints { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:5px; }
+    .db-hint { text-align:center; font-family:'Space Mono',monospace; font-size:8px; color:var(--muted); }
+
+    .db-info {
+      margin: 14px 16px 0;
+      background:#0f1724; border:1px solid #1e2d42;
+      border-radius:8px; padding:8px 12px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .db-info-item { font-family:'Space Mono',monospace; font-size:8px; color:var(--muted); display:flex; flex-direction:column; gap:2px; align-items:center; }
+    .db-info-item span:first-child { color:var(--soft); font-size:9px; }
+    .db-info-sep { width:1px; height:18px; background:#1e2d42; }
+
+    .db-credit {
+      margin: 12px 16px 16px;
+      border:1px solid #1e2d42; border-radius:12px;
+      padding:12px; background:#0f1724; position:relative; overflow:hidden;
+    }
+    .db-credit::before {
+      content:''; position:absolute; top:0;left:0;right:0; height:1px;
+      background:linear-gradient(90deg,transparent,rgba(68,138,255,0.4),transparent);
+    }
+    .db-credit-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .db-credit-av {
+      width:28px; height:28px; border-radius:50%;
+      background:linear-gradient(135deg,#448aff,#7c4dff);
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; border:1px solid rgba(68,138,255,0.3);
+    }
+    .db-credit-name { font-size:10px; font-weight:700; color:var(--text); }
+    .db-credit-role { font-family:'Space Mono',monospace; font-size:8px; color:var(--muted); margin-top:1px; }
+    .db-social-row { display:flex; gap:6px; }
+    .db-slink {
+      flex:1; display:inline-flex; align-items:center; justify-content:center;
+      gap:4px; padding:6px; border-radius:8px; text-decoration:none;
+      font-size:9px; font-weight:700; border:1px solid transparent; transition:all 0.2s;
+    }
+    .db-slink.gh { background:rgba(255,255,255,0.04); color:#c9d1d9; border-color:#30363d; }
+    .db-slink.ig { background:rgba(225,48,108,0.08); color:#f48fb1; border-color:rgba(225,48,108,0.25); }
+
+    /* Demo toast */
+    .db-toast {
+      position: absolute; bottom: 12px; left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: #1a2332; border: 1px solid var(--border);
+      color: var(--text); padding: 7px 16px; border-radius: 100px;
+      font-family: 'Space Mono', monospace; font-size: 9px;
+      opacity: 0; transition: all 0.3s;
+      white-space: nowrap; pointer-events: none;
+    }
+    .db-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Demo busy */
+    .db-busy {
+      display: none; position: absolute; inset: 0;
+      background: rgba(6,10,16,0.7); backdrop-filter: blur(3px);
+      align-items: center; justify-content: center; flex-direction: column; gap: 10px;
+      border-radius: 18px; z-index: 10;
+    }
+    .db-busy.active { display: flex; }
+    .db-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border); border-top-color: var(--green);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    .db-busy-txt { font-family:'Space Mono',monospace; font-size:9px; color:var(--soft); }
+
+    .demo-note {
+      text-align: center; font-family: 'Space Mono', monospace;
+      font-size: 9px; color: var(--muted); margin-top: 10px; letter-spacing: 0.5px;
+    }
+    .demo-note span { color: var(--blue); }
+
+    /* ══════════════ RIGHT — EXPLANATION PANELS ══════════════ */
+    .explain-col { display: flex; flex-direction: column; gap: 24px; }
+
+    .sec-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 2px; color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sec-label::after { content:''; flex:1; height:1px; background: var(--border); }
+
+    .exp-card {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .exp-card-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .exp-card-head h3 { font-size: 14px; font-weight: 700; }
+    .exp-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .exp-body { padding: 0; }
+
+    /* Element rows */
+    .el-row {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .el-row:last-child { border-bottom: none; }
+    .el-row:hover { background: rgba(68,138,255,0.03); }
+    .el-num {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .el-body {}
+    .el-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+    .el-desc  { font-size: 12px; color: var(--soft); line-height: 1.6; }
+    .el-desc code {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 4px; padding: 1px 6px;
+      font-family: 'Space Mono', monospace; font-size: 10px;
+    }
+    .tag {
+      display: inline-block;
+      border-radius: 4px; padding: 1px 7px;
+      font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+    }
+    .tag.green  { background: rgba(0,230,118,0.12);  color: var(--green); }
+    .tag.red    { background: rgba(255,82,82,0.12);   color: var(--red); }
+    .tag.blue   { background: rgba(68,138,255,0.12);  color: var(--blue); }
+    .tag.amber  { background: rgba(255,215,64,0.12);  color: var(--amber); }
+    .tag.purple { background: rgba(179,136,255,0.12); color: var(--purple); }
+    .tag.cyan   { background: rgba(24,255,255,0.12);  color: var(--cyan); }
+
+    /* Flow steps */
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      padding: 20px;
+    }
+    .flow-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      position: relative;
+    }
+    .flow-step-num {
+      width: 24px; height: 24px; border-radius: 6px;
+      background: var(--blue-dim); border: 1px solid rgba(68,138,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+      color: var(--blue); margin-bottom: 8px;
+    }
+    .flow-step-icon { font-size: 20px; margin-bottom: 6px; display: block; }
+    .flow-step h4 { font-size: 12px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+    .flow-step p  { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* API endpoint table */
+    .api-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .api-row:last-child { border-bottom: none; }
+    .api-row:hover { background: rgba(68,138,255,0.03); }
+    .method { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 5px; text-align: center; }
+    .method.get { background: rgba(0,230,118,0.12); color: var(--green); }
+    .api-url { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--cyan); }
+    .api-desc { font-size: 11px; color: var(--soft); }
+    .api-badge { display:inline-block; background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:1px 6px; font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); margin-top:3px; }
+
+    /* Code blocks */
+    .code-wrap { padding: 16px 20px; }
+    .code-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:700px){ .code-grid{ grid-template-columns:1fr; } }
+    .code-block {
+      background: #060a10;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .code-block-head {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; color: var(--muted); letter-spacing: 1px;
+    }
+    .code-block pre {
+      padding: 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      line-height: 1.8;
+      color: #c9d1d9;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+    .kw   { color: #ff7b72; }
+    .fn   { color: #d2a8ff; }
+    .str  { color: #a5d6ff; }
+    .cmt  { color: #4a6080; font-style: italic; }
+    .num  { color: #79c0ff; }
+    .prop { color: #ffa657; }
+
+    /* State cards */
+    .state-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:16px 20px; }
+    @media(max-width:700px){ .state-grid{ grid-template-columns:1fr; } }
+    .state-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .state-card-head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .state-dot-lg { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .state-card h4 { font-size:12px; font-weight:700; }
+    .state-card p  { font-size:11px; color:var(--muted); line-height:1.6; }
+    .state-card ul { font-size:11px; color:var(--muted); padding-left:14px; line-height:1.8; }
+
+    /* How to use steps */
+    .use-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; padding:16px 20px; }
+    .use-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .use-num {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--blue-dim); border: 1px solid rgba(68,138,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .use-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+    .use-card p  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    /* ══════════════ FULL WIDTH BOTTOM SECTIONS ══════════════ */
+    .full {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ HERO ══════════ -->
+<div class="hero">
+  <div class="hero-tag">FULL EXPLANATION &bull; ILHAM FAROOQUE</div>
+  <h1>Web Control Dashboard<br><span>Everything Explained</span></h1>
+  <p>A complete breakdown of the ESP8266 web dashboard — what every element does, how it communicates, and exactly how to use it</p>
+</div>
+
+<!-- ══════════ TAB NAV ══════════ -->
+<div class="tabs">
+  <a class="tab active" href="#preview">Live Preview</a>
+  <a class="tab" href="#elements">UI Elements</a>
+  <a class="tab" href="#flow">How It Works</a>
+  <a class="tab" href="#api">API Endpoints</a>
+  <a class="tab" href="#code">JS Code</a>
+  <a class="tab" href="#states">States</a>
+  <a class="tab" href="#howto">How to Use</a>
+</div>
+
+<!-- ══════════ MAIN GRID ══════════ -->
+<div class="main" id="preview">
+
+  <!-- LEFT — LIVE PREVIEW -->
+  <div class="preview-col">
+    <div class="preview-label">Interactive Preview — Click the buttons!</div>
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="b-dots">
+          <span class="bd-r"></span>
+          <span class="bd-y"></span>
+          <span class="bd-g"></span>
+        </div>
+        <div class="b-url">http://192.168.1.105/</div>
+      </div>
+
+      <div class="db" style="position:relative;">
+        <!-- Busy overlay for demo -->
+        <div class="db-busy" id="dBusy">
+          <div class="db-spinner"></div>
+          <div class="db-busy-txt" id="dBusyTxt">SERVO MOVING...</div>
+        </div>
+
+        <div class="db-card">
+          <div class="db-accent"></div>
+
+          <div class="db-header">
+            <div>
+              <h2>FAN CONTROLLER</h2>
+              <p>ESP8266 &bull; DUAL SERVO &bull; WI-FI</p>
+            </div>
+            <div class="db-pill">
+              <div class="db-pill-dot"></div>LIVE
+            </div>
+          </div>
+
+          <div class="db-fan-sec">
+            <div class="db-ring off" id="dRing">🌀</div>
+            <div class="db-badge off" id="dBadge">
+              <div class="db-sdot"></div>
+              <span id="dBadgeTxt">FAN OFF</span>
+            </div>
+          </div>
+
+          <div class="db-chips">
+            <div class="db-chip" id="dC1">
+              <div class="db-chip-hd">
+                <span class="db-chip-num">SERVO 1</span>
+                <div class="db-chip-led"></div>
+              </div>
+              <div class="db-chip-title">ON Motor</div>
+              <div class="db-chip-state" id="dS1">Standby</div>
+              <div class="db-chip-pin">D1 &bull; GPIO5</div>
+            </div>
+            <div class="db-chip" id="dC2">
+              <div class="db-chip-hd">
+                <span class="db-chip-num">SERVO 2</span>
+                <div class="db-chip-led"></div>
+              </div>
+              <div class="db-chip-title">OFF Motor</div>
+              <div class="db-chip-state" id="dS2">Standby</div>
+              <div class="db-chip-pin">D2 &bull; GPIO4</div>
+            </div>
+          </div>
+
+          <div class="db-btns">
+            <div class="db-btn-row">
+              <button class="db-btn db-btn-on"  id="dBOn"  onclick="demoCmd('on')">✓ Turn ON</button>
+              <button class="db-btn db-btn-off" id="dBOff" onclick="demoCmd('off')">✕ Turn OFF</button>
+            </div>
+            <div class="db-hints">
+              <div class="db-hint">Servo 1 fires → D1</div>
+              <div class="db-hint">Servo 2 fires → D2</div>
+            </div>
+          </div>
+
+          <div class="db-info">
+            <div class="db-info-item"><span>192.168.1.105</span><span>IP ADDRESS</span></div>
+            <div class="db-info-sep"></div>
+            <div class="db-info-item"><span id="dSync">--:--:--</span><span>LAST SYNC</span></div>
+            <div class="db-info-sep"></div>
+            <div class="db-info-item"><span id="dCnt">0</span><span>COMMANDS</span></div>
+          </div>
+
+          <div class="db-credit">
+            <div class="db-credit-top">
+              <div class="db-credit-av">🔧</div>
+              <div>
+                <div class="db-credit-name">ILHAM FAROOQUE</div>
+                <div class="db-credit-role">DEVELOPER &bull; ESP8266 PROJECT</div>
+              </div>
+            </div>
+            <div class="db-social-row">
+              <a class="db-slink gh" href="https://github.com/ilham786" target="_blank">🐙 GitHub</a>
+              <a class="db-slink ig" href="https://www.instagram.com/ilham_farooque/" target="_blank">📸 Instagram</a>
+            </div>
+          </div>
+
+        </div><!-- /db-card -->
+        <div class="db-toast" id="dToast"></div>
+      </div><!-- /db -->
+    </div><!-- /browser -->
+
+    <div class="demo-note">☝ <span>Fully interactive demo</span> — try both buttons!</div>
+  </div><!-- /preview-col -->
+
+  <!-- RIGHT — EXPLANATIONS -->
+  <div class="explain-col">
+
+    <!-- SECTION: What is this page? -->
+    <div id="elements">
+      <div class="sec-label">What Is This Page?</div>
+      <div class="exp-card">
+        <div class="exp-card-head">
+          <div class="exp-icon" style="background:var(--blue-dim);">📡</div>
+          <div>
+            <h3>A Web Page Served Directly by Your ESP8266</h3>
+          </div>
+        </div>
+        <div class="exp-body">
+          <div class="el-row">
+            <div class="el-num" style="background:var(--blue-dim);color:var(--blue);">①</div>
+            <div class="el-body">
+              <div class="el-title">No Internet Needed</div>
+              <div class="el-desc">The ESP8266 itself hosts the web page on your local Wi-Fi network. No cloud, no external server, no internet required. As long as your phone/PC is on the same Wi-Fi, it works.</div>
+            </div>
+          </div>
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(0,230,118,0.1);color:var(--green);">②</div>
+            <div class="el-body">
+              <div class="el-title">No App to Install</div>
+              <div class="el-desc">Open any browser — Chrome, Safari, Firefox — type the IP address and the dashboard loads instantly. Works on phone, tablet, and PC.</div>
+            </div>
+          </div>
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(255,215,64,0.1);color:var(--amber);">③</div>
+            <div class="el-body">
+              <div class="el-title">Stored in ESP8266 Flash Memory</div>
+              <div class="el-desc">The entire HTML/CSS/JavaScript of this page is stored inside the ESP8266's flash using <code>PROGMEM</code>. Every time you load it, the microcontroller sends it to your browser.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: UI Elements -->
+    <div>
+      <div class="sec-label">Every UI Element — Explained</div>
+      <div class="exp-card">
+        <div class="exp-card-head">
+          <div class="exp-icon" style="background:rgba(179,136,255,0.1);">🧩</div>
+          <h3>What Each Part of the Dashboard Does</h3>
+        </div>
+        <div class="exp-body">
+
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(0,230,118,0.1);color:var(--green);">1</div>
+            <div class="el-body">
+              <div class="el-title">🌀 Spinning Fan Icon</div>
+              <div class="el-desc">The large circle at the top. When the fan is <span class="tag green">ON</span> it glows green and spins continuously using CSS animation. When <span class="tag red">OFF</span> it turns red and stays still. Gives you an instant visual status at a glance — no reading needed.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:var(--blue-dim);color:var(--blue);">2</div>
+            <div class="el-body">
+              <div class="el-title">Status Badge (FAN ON / FAN OFF)</div>
+              <div class="el-desc">The pill-shaped badge below the fan ring. Shows <span class="tag green">FAN ON</span> with a green pulsing dot when running, or <span class="tag">FAN OFF</span> in grey when not. Updates automatically — you never need to refresh the page.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(0,230,118,0.1);color:var(--green);">3</div>
+            <div class="el-body">
+              <div class="el-title">⚙ Servo 1 Card (ON Motor)</div>
+              <div class="el-desc">Left card showing status of <span class="tag blue">Servo 1</span> on pin <code>D1 · GPIO5</code>. Shows <strong>Standby</strong> normally. When you press Turn ON, it lights up green and shows <strong>PRESSING...</strong> for the duration of the servo movement, then returns to Standby.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(255,82,82,0.1);color:var(--red);">4</div>
+            <div class="el-body">
+              <div class="el-title">⚙ Servo 2 Card (OFF Motor)</div>
+              <div class="el-desc">Right card showing status of <span class="tag red">Servo 2</span> on pin <code>D2 · GPIO4</code>. When you press Turn OFF, it lights up red and shows <strong>PRESSING...</strong>. Each servo card activates only for its own command — they never both activate at once.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(0,230,118,0.1);color:var(--green);">5</div>
+            <div class="el-body">
+              <div class="el-title">✓ Turn ON Button</div>
+              <div class="el-desc">Sends command <code>/on</code> to ESP8266. <strong>Only Servo 1</strong> fires — it presses the switch to the ON position. The button automatically greys out and becomes disabled when the fan is already ON, preventing a double command.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(255,82,82,0.1);color:var(--red);">6</div>
+            <div class="el-body">
+              <div class="el-title">✕ Turn OFF Button</div>
+              <div class="el-desc">Sends command <code>/off</code> to ESP8266. <strong>Only Servo 2</strong> fires — it presses the switch to the OFF position. Greys out when fan is already OFF. The hint text below each button shows which servo fires and which pin it uses.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:var(--blue-dim);color:var(--blue);">7</div>
+            <div class="el-body">
+              <div class="el-title">Info Strip (Bottom Bar)</div>
+              <div class="el-desc">Shows three pieces of live data: <span class="tag cyan">IP ADDRESS</span> of the ESP8266, <span class="tag blue">LAST SYNC</span> timestamp of the last status poll, and <span class="tag amber">COMMANDS</span> counter — total commands sent this session.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(179,136,255,0.1);color:var(--purple);">8</div>
+            <div class="el-body">
+              <div class="el-title">Busy Overlay (Spinner)</div>
+              <div class="el-desc">A semi-transparent blur overlay that covers the entire page while the servo is physically moving. Shows which servo is firing (e.g. "SERVO 1 PRESSING ON..."). All buttons are disabled during this time — prevents sending two commands while one is in progress.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(255,215,64,0.1);color:var(--amber);">9</div>
+            <div class="el-body">
+              <div class="el-title">Toast Notification</div>
+              <div class="el-desc">A small pill popup at the bottom of the screen that slides up, stays for 2.8 seconds, then fades away. Confirms every action: <em>"Fan ON — Servo 1 fired"</em> or shows <em>"Connection error"</em> if the ESP8266 is unreachable. Never interrupts your workflow.</div>
+            </div>
+          </div>
+
+          <div class="el-row">
+            <div class="el-num" style="background:rgba(24,255,255,0.1);color:var(--cyan);">10</div>
+            <div class="el-body">
+              <div class="el-title">🔧 Credit Section (Ilham Farooque)</div>
+              <div class="el-desc">Developer credit card at the bottom with avatar, name, and two social links. GitHub link opens <code>github.com/ilham786</code> and Instagram opens your profile. Both open in a new tab so the dashboard stays open.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /explain-col -->
+</div><!-- /main -->
+
+<!-- ══════════ FULL WIDTH SECTIONS ══════════ -->
+<div class="full">
+
+  <!-- HOW IT WORKS FLOW -->
+  <div id="flow">
+    <div class="sec-label">How It Works — Step by Step</div>
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-icon" style="background:rgba(24,255,255,0.1);">🔁</div>
+        <h3>Complete Communication Flow — What Happens When You Press a Button</h3>
+      </div>
+      <div class="flow-grid">
+        <div class="flow-step">
+          <div class="flow-step-num">01</div>
+          <span class="flow-step-icon">👆</span>
+          <h4>You Tap "Turn ON"</h4>
+          <p>Browser JavaScript runs <code>cmd('on')</code>. Busy lock is set. Busy overlay appears. Servo 1 card lights up green immediately.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">02</div>
+          <span class="flow-step-icon">📤</span>
+          <h4>HTTP Request Sent</h4>
+          <p>Browser calls <code>fetch('/on')</code> — sends an HTTP GET request over your local Wi-Fi to <code>http://192.168.1.105/on</code>.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">03</div>
+          <span class="flow-step-icon">📡</span>
+          <h4>ESP8266 Receives It</h4>
+          <p>The web server running on port 80 receives the request. The <code>handleON()</code> function is called inside the Arduino code.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">04</div>
+          <span class="flow-step-icon">⚙️</span>
+          <h4>Servo 1 Fires on D1</h4>
+          <p>PWM signal sent to pin D1. Servo 1 arm swings from 90° (neutral) to 55° (press angle), physically pushing the switch to ON.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">05</div>
+          <span class="flow-step-icon">⏱</span>
+          <h4>Hold for 450ms</h4>
+          <p>Servo stays pressed for 450ms — enough time to ensure the physical switch clicks and latches into the ON position reliably.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">06</div>
+          <span class="flow-step-icon">↩️</span>
+          <h4>Servo Returns to Neutral</h4>
+          <p>Servo arm moves back to 90° (neutral). It is no longer touching the switch. The switch stays ON mechanically on its own.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">07</div>
+          <span class="flow-step-icon">📥</span>
+          <h4>ESP8266 Replies JSON</h4>
+          <p>ESP8266 sends back <code>{"fan_on":true,"busy":false}</code>. This tells the browser the confirmed new state of the system.</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">08</div>
+          <span class="flow-step-icon">🎨</span>
+          <h4>Dashboard Updates</h4>
+          <p>Fan icon spins green, badge shows FAN ON, ON button greys out, toast pops "Fan ON — Servo 1 fired", command counter increments.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API ENDPOINTS -->
+  <div id="api">
+    <div class="sec-label">Web Server API Endpoints</div>
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-icon" style="background:rgba(24,255,255,0.1);">🔗</div>
+        <h3>All URLs Your ESP8266 Responds To</h3>
+      </div>
+      <div class="api-row" style="background:rgba(68,138,255,0.04);padding-bottom:8px;padding-top:8px;">
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">METHOD</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">ENDPOINT</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;">ACTION &amp; RESPONSE</div>
+      </div>
+      <div class="api-row">
+        <span class="method get">GET</span>
+        <div><div class="api-url">http://[IP]/</div></div>
+        <div><div class="api-desc">Serves the full web dashboard HTML page to the browser</div></div>
+      </div>
+      <div class="api-row">
+        <span class="method get">GET</span>
+        <div><div class="api-url">http://[IP]/on</div></div>
+        <div>
+          <div class="api-desc">Fires <strong>Servo 1</strong> (D1) → presses switch ON</div>
+          <div class="api-badge">{"fan_on":true,"busy":false}</div>
+        </div>
+      </div>
+      <div class="api-row">
+        <span class="method get">GET</span>
+        <div><div class="api-url">http://[IP]/off</div></div>
+        <div>
+          <div class="api-desc">Fires <strong>Servo 2</strong> (D2) → presses switch OFF</div>
+          <div class="api-badge">{"fan_on":false,"busy":false}</div>
+        </div>
+      </div>
+      <div class="api-row">
+        <span class="method get">GET</span>
+        <div><div class="api-url">http://[IP]/status</div></div>
+        <div>
+          <div class="api-desc">Returns current state only — polled silently every 3 seconds by the browser</div>
+          <div class="api-badge">{"fan_on":false,"busy":false}</div>
+        </div>
+      </div>
+      <div class="api-row">
+        <span class="method get">GET</span>
+        <div><div class="api-url">http://[IP]/info</div></div>
+        <div>
+          <div class="api-desc">Returns the ESP8266's own IP address — fetched once on page load</div>
+          <div class="api-badge">{"ip":"192.168.1.105"}</div>
+        </div>
+      </div>
+      <div style="padding:14px 20px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);">
+        💡 These endpoints also work from <strong style="color:var(--soft)">any HTTP client</strong> — Python, curl, Postman, Home Assistant, IFTTT, etc. Replace <code style="background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:10px;">[IP]</code> with your actual IP from Serial Monitor.
+      </div>
+    </div>
+  </div>
+
+  <!-- JS CODE EXPLAINED -->
+  <div id="code">
+    <div class="sec-label">JavaScript Inside the Page — Explained</div>
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-icon" style="background:rgba(255,215,64,0.1);">🧠</div>
+        <h3>How the Browser Side Code Works</h3>
+      </div>
+      <div class="code-wrap">
+        <div class="code-grid">
+
+          <div class="code-block">
+            <div class="code-block-head">1. SENDING A COMMAND</div>
+            <pre><span class="kw">function</span> <span class="fn">cmd</span>(c) {
+  <span class="cmt">// Ignore tap if already busy</span>
+  <span class="kw">if</span> (busy) {
+    <span class="fn">toast</span>(<span class="str">'Please wait...'</span>);
+    <span class="kw">return</span>;
+  }
+  busy = <span class="kw">true</span>;
+  <span class="fn">fetch</span>(<span class="str">'/'</span> + c)
+    .then(r => r.<span class="fn">json</span>())
+    .then(d => {
+      fanOn = d.<span class="prop">fan_on</span>;
+      <span class="fn">draw</span>(<span class="kw">null</span>);
+      <span class="fn">toast</span>(<span class="str">'Done!'</span>);
+    })
+    .finally(() => { busy = <span class="kw">false</span>; });
+}</pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-head">2. AUTO-POLLING EVERY 3 SECONDS</div>
+            <pre><span class="kw">function</span> <span class="fn">poll</span>() {
+  <span class="cmt">// Silent background check</span>
+  <span class="fn">fetch</span>(<span class="str">'/status'</span>)
+    .then(r => r.<span class="fn">json</span>())
+    .then(d => {
+      fanOn = d.<span class="prop">fan_on</span>;
+      <span class="fn">draw</span>(<span class="kw">null</span>);
+    })
+    .catch(() => {}); <span class="cmt">// silent fail</span>
+}
+
+<span class="cmt">// Start on page load, repeat every 3s</span>
+<span class="fn">poll</span>();
+<span class="fn">setInterval</span>(poll, <span class="num">3000</span>);</pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-head">3. UPDATING THE UI (draw function)</div>
+            <pre><span class="kw">function</span> <span class="fn">draw</span>(activeServo) {
+  <span class="kw">if</span> (fanOn) {
+    ring.<span class="prop">className</span> = <span class="str">'db-ring on'</span>;
+    badge.<span class="prop">className</span> = <span class="str">'db-badge on'</span>;
+    btnOn.<span class="prop">disabled</span> = <span class="kw">true</span>;
+    btnOff.<span class="prop">disabled</span> = <span class="kw">false</span>;
+  } <span class="kw">else</span> {
+    ring.<span class="prop">className</span> = <span class="str">'db-ring off'</span>;
+    <span class="cmt">// ... reverse</span>
+  }
+  <span class="cmt">// Light up correct servo card</span>
+  <span class="kw">if</span> (activeServo === <span class="str">'on'</span>)
+    chip1.<span class="fn">classList</span>.<span class="fn">add</span>(<span class="str">'fon'</span>);
+}</pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-head">4. TOAST NOTIFICATION</div>
+            <pre><span class="kw">function</span> <span class="fn">toast</span>(msg) {
+  <span class="kw">const</span> t =
+    <span class="fn">getElementById</span>(<span class="str">'toast'</span>);
+
+  t.<span class="prop">textContent</span> = msg;
+
+  <span class="cmt">// Slide up + show</span>
+  t.<span class="prop">classList</span>.<span class="fn">add</span>(<span class="str">'show'</span>);
+
+  <span class="cmt">// Auto-hide after 2.8s</span>
+  <span class="fn">setTimeout</span>(() => {
+    t.<span class="prop">classList</span>.<span class="fn">remove</span>(<span class="str">'show'</span>);
+  }, <span class="num">2800</span>);
+}</pre>
+          </div>
+
+        </div>
+        <div style="padding:14px 0 4px;font-size:12px;color:var(--muted);">
+          All JavaScript uses the browser's native <code style="background:var(--surface);border:1px solid var(--border2);border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:10px;">fetch()</code> API — no external libraries, no jQuery. Works on every modern browser including mobile Safari and Chrome.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATES -->
+  <div id="states">
+    <div class="sec-label">Dashboard States — All 4 Modes</div>
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-icon" style="background:rgba(179,136,255,0.1);">🎨</div>
+        <h3>How the Dashboard Changes Appearance in Each State</h3>
+      </div>
+      <div class="state-grid">
+        <div class="state-card">
+          <div class="state-card-head">
+            <div class="state-dot-lg" style="background:var(--green);box-shadow:0 0 6px var(--green);"></div>
+            <h4 style="color:var(--green);">FAN ON State</h4>
+          </div>
+          <ul>
+            <li>Fan ring glows green and spins</li>
+            <li>Badge shows <strong>FAN ON</strong> in green</li>
+            <li>Turn ON button is grey / disabled</li>
+            <li>Turn OFF button is active red</li>
+            <li>Servo 1 card returns to Standby</li>
+          </ul>
+        </div>
+        <div class="state-card">
+          <div class="state-card-head">
+            <div class="state-dot-lg" style="background:var(--red);box-shadow:0 0 6px var(--red);"></div>
+            <h4 style="color:var(--red);">FAN OFF State</h4>
+          </div>
+          <ul>
+            <li>Fan ring glows red, stops spinning</li>
+            <li>Badge shows <strong>FAN OFF</strong> in grey</li>
+            <li>Turn ON button is active green</li>
+            <li>Turn OFF button is grey / disabled</li>
+            <li>Servo 2 card returns to Standby</li>
+          </ul>
+        </div>
+        <div class="state-card">
+          <div class="state-card-head">
+            <div class="state-dot-lg" style="background:var(--blue);box-shadow:0 0 6px var(--blue);"></div>
+            <h4 style="color:var(--blue);">BUSY State (servo moving)</h4>
+          </div>
+          <ul>
+            <li>Blur overlay covers entire page</li>
+            <li>Spinner animation shown</li>
+            <li>Text shows which servo is firing</li>
+            <li>All buttons are fully disabled</li>
+            <li>Lasts ~650ms total (press + return)</li>
+          </ul>
+        </div>
+        <div class="state-card">
+          <div class="state-card-head">
+            <div class="state-dot-lg" style="background:var(--amber);box-shadow:0 0 6px var(--amber);"></div>
+            <h4 style="color:var(--amber);">ERROR State</h4>
+          </div>
+          <ul>
+            <li>Toast shows "Connection error"</li>
+            <li>Happens if ESP8266 is offline</li>
+            <li>Dashboard stays on last known state</li>
+            <li>Auto-poll resumes every 3 seconds</li>
+            <li>Recovers automatically when ESP8266 comes back online</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO USE -->
+  <div id="howto">
+    <div class="sec-label">How to Use It — Step by Step</div>
+    <div class="exp-card">
+      <div class="exp-card-head">
+        <div class="exp-icon" style="background:rgba(0,230,118,0.1);">📱</div>
+        <h3>Accessing and Using the Dashboard From Any Device</h3>
+      </div>
+      <div class="use-grid">
+        <div class="use-card">
+          <div class="use-num">1</div>
+          <h4>Upload Code to ESP8266</h4>
+          <p>Enter your Wi-Fi name and password in the code, upload to NodeMCU via Arduino IDE. Both servos will move to neutral position on startup.</p>
+        </div>
+        <div class="use-card">
+          <div class="use-num">2</div>
+          <h4>Get IP from Serial Monitor</h4>
+          <p>Open Serial Monitor at 115200 baud. After connecting you'll see: <em>http://192.168.1.X/</em> — copy that address.</p>
+        </div>
+        <div class="use-card">
+          <div class="use-num">3</div>
+          <h4>Connect Phone to Same Wi-Fi</h4>
+          <p>Your phone and ESP8266 must be on the same Wi-Fi network. Turn off mobile data to avoid confusion with routing.</p>
+        </div>
+        <div class="use-card">
+          <div class="use-num">4</div>
+          <h4>Open Any Browser</h4>
+          <p>Type the IP address directly: <code>http://192.168.1.105</code>. The dashboard loads instantly. No login, no setup.</p>
+        </div>
+        <div class="use-card">
+          <div class="use-num">5</div>
+          <h4>Add to Phone Home Screen</h4>
+          <p><strong>iPhone:</strong> Share → Add to Home Screen<br><strong>Android:</strong> ⋮ menu → Add to Home Screen<br>It now opens like a native app from an icon.</p>
+        </div>
+        <div class="use-card">
+          <div class="use-num">6</div>
+          <h4>Share With Family</h4>
+          <p>Anyone on the same Wi-Fi can open the same IP address on their own phone or PC and control the fan independently. No limit on devices.</p>
+        </div>
+        <div class="use-card">
+          <div class="use-num">7</div>
+          <h4>Control From Any Automation</h4>
+          <p>Use <code>/on</code> and <code>/off</code> from Python, curl, or Home Assistant. Example: <code>curl http://192.168.1.105/on</code> in a terminal turns the fan on.</p>
+        </div>
+        <div class="use-card">
+          <div class="use-num">8</div>
+          <h4>Set a Static IP (Recommended)</h4>
+          <p>Add <code>WiFi.config(ip, gateway, subnet)</code> before <code>WiFi.begin()</code> in setup. Then the IP never changes after router restarts — your bookmark always works.</p>
+        </div>
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);">
+        <strong style="color:var(--soft);">Auto-Sync:</strong> The dashboard quietly polls <code>/status</code> every 3 seconds. If someone turns the fan on from another device, your page updates automatically — no manual refresh ever needed.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /full -->
+
+<!-- ══════════ DEMO SCRIPT ══════════ -->
+<script>
+  let fanOn = false, busy = false, cnt = 0;
+
+  function demoCmd(c) {
+    if (busy) { dToast('Please wait — servo moving'); return; }
+    busy = true;
+
+    document.getElementById('dBusyTxt').textContent =
+      c === 'on' ? 'SERVO 1 PRESSING ON...' : 'SERVO 2 PRESSING OFF...';
+    document.getElementById('dBusy').classList.add('active');
+
+    dDraw(c); // light up correct servo card immediately
+
+    setTimeout(() => {
+      fanOn = (c === 'on');
+      cnt++;
+      document.getElementById('dCnt').textContent = cnt;
+      dDraw(null);
+      dToast(fanOn ? '✓ Fan ON — Servo 1 fired' : '✓ Fan OFF — Servo 2 fired');
+      busy = false;
+      document.getElementById('dBusy').classList.remove('active');
+    }, 700);
+  }
+
+  function dDraw(active) {
+    const ring  = document.getElementById('dRing');
+    const badge = document.getElementById('dBadge');
+    const bTxt  = document.getElementById('dBadgeTxt');
+    const bOn   = document.getElementById('dBOn');
+    const bOff  = document.getElementById('dBOff');
+    const c1    = document.getElementById('dC1');
+    const c2    = document.getElementById('dC2');
+    const s1    = document.getElementById('dS1');
+    const s2    = document.getElementById('dS2');
+
+    if (fanOn) {
+      ring.className  = 'db-ring on';
+      badge.className = 'db-badge on';
+      bTxt.textContent = 'FAN ON';
+      bOn.disabled  = true;
+      bOff.disabled = false;
+    } else {
+      ring.className  = 'db-ring off';
+      badge.className = 'db-badge off';
+      bTxt.textContent = 'FAN OFF';
+      bOn.disabled  = false;
+      bOff.disabled = true;
+    }
+
+    c1.className = 'db-chip';
+    c2.className = 'db-chip';
+    s1.textContent = 'Standby';
+    s2.textContent = 'Standby';
+
+    if (active === 'on')  { c1.classList.add('fon');  s1.textContent = 'PRESSING...'; }
+    if (active === 'off') { c2.classList.add('foff'); s2.textContent = 'PRESSING...'; }
+
+    const now = new Date();
+    document.getElementById('dSync').textContent =
+      now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function dToast(msg) {
+    const t = document.getElementById('dToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // Clock
+  setInterval(() => {
+    if (!busy) {
+      const now = new Date();
+      document.getElementById('dSync').textContent =
+        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+  }, 1000);
+
+  dDraw(null);
+</script>
+</body>
+</html>
